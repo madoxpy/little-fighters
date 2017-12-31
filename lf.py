@@ -18,6 +18,7 @@ horizon = 270
 background=image.load("back07.jpg")
 background=transform.scale(background,(res[0]+50,res[1]-top))
 
+
 init()
 window=display.set_mode(res)
 clock = time.Clock()
@@ -31,23 +32,31 @@ class Ball(object):
 		self.orient="stop"
 		self.v=8
 		self.rect=Rect(self.x,self.y,50,50)
-		self.pic=image.load(name+"ball.png")
-		self.pic2=image.load(name+"ball2.png")
+		self.pic=image.load(name+"/"+name+"ball.png")
+		self.pic2=image.load(name+"/"+name+"ball2.png")
 		self.seq=0
+		
+		file=open(name+"/"+name+".dat")
+		for i in range(11):
+			line1=file.readline().split()
+		line2=file.readline().split()
+		self.ball=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]
+		line1=file.readline().split()
+		line2=file.readline().split()
+		line3=file.readline().split()
+		self.at= int(line3[1])
 		
 	def go(self,p):
 		if self.orient=="right":
-			#window.blit(self.pic,(self.x-50,self.y-30),(80*self.seq+3,0,78,80))
 			self.x=self.x+self.v
 			self.rect=Rect(self.x,self.y,50,50)
 
 		if self.orient=="left":
-			#window.blit(self.pic2,(self.x-5,self.y-30),(80*self.seq+3,0,78,80))
 			self.x=self.x-self.v
 			self.rect=Rect(self.x,self.y,50,50)		
 		
 		if self.rect.colliderect(p.rect):
-			p.hp=p.hp-20
+			p.hp=p.hp-self.at
 			if p.hp<0:
 				p.hp=0
 			self.x=-100
@@ -62,6 +71,7 @@ class Ball(object):
 
 		
 		
+		
 	def draw(self):
 		#draw.rect(window,white,self.rect,1)
 		
@@ -69,14 +79,10 @@ class Ball(object):
 			window.blit(self.pic,(self.x-30,self.y-30),(110*self.seq,100,100,95))
 			
 		if self.orient=="right":
-			window.blit(self.pic,(self.x-50,self.y-30),(80*self.seq+3+163,0,78,80))
-			#self.x=self.x+self.v
-			#self.rect=Rect(self.x,self.y,50,50)
+			window.blit(self.pic,(self.x-50,self.y-30),(self.ball[2]*self.seq+self.ball[0],self.ball[1],self.ball[2],self.ball[3]))
 
 		if self.orient=="left":
-			window.blit(self.pic2,(self.x-5,self.y-30),(80*self.seq+3,0,78,80))
-			#self.x=self.x-self.v
-			#self.rect=Rect(self.x,self.y,50,50)
+			window.blit(self.pic2,(self.x-50,self.y-30),(self.ball[6]*self.seq+self.ball[4],self.ball[5],self.ball[6],self.ball[7]))
 
 		self.seq=(self.seq+1)%2
 
@@ -92,10 +98,35 @@ class Player(object):
 		self.orient="right"
 		self.mode = "stand"
 		self.seq=0
-		self.pic=image.load(name+".png")
-		self.pic2=image.load(name+"2.png")
-		self.pic3=image.load(name+"3.png")
-		self.pic4=image.load(name+"4.png")
+		self.pic=image.load(name+"/"+name+".png")
+		self.pic2=image.load(name+"/"+name+"2.png")
+		self.pic3=image.load(name+"/"+name+"3.png")
+		self.pic4=image.load(name+"/"+name+"4.png")
+		
+		file=open(name+"/"+name+".dat")
+		line1=file.readline().split()
+		line2=file.readline().split()
+		self.stand=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]
+		line1=file.readline().split()
+		line2=file.readline().split()
+		self.go=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]		
+		line1=file.readline().split()
+		line2=file.readline().split()
+		self.at1=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]
+		line1=file.readline().split()
+		line2=file.readline().split()
+		self.at2=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]
+		line1=file.readline().split()
+		line2=file.readline().split()
+		self.at3=[int(line1[0]),int(line1[1]),int(line1[2]),int(line1[3]),int(line2[0]),int(line2[1]),int(line2[2]),int(line2[3])]
+		line1=file.readline().split()
+		line1=file.readline().split()
+		line1=file.readline().split()
+		line2=file.readline().split()
+		line3=file.readline().split()
+		self.at=[int(line1[0]),int(line1[1]),int(line2[0]),int(line2[1]),int(line3[0]),int(line3[1])]
+		
+		file.close()
 		
 	def left(self):
 		self.orient="left"
@@ -126,20 +157,24 @@ class Player(object):
 			
 	def attack1(self,p):
 		self.mode="attack1"
-		if self.rect.colliderect(p.rect) and p.hp>0:
-			p.hp=p.hp-1
+		if self.rect.colliderect(p.rect) and p.hp>0 and self.mp>self.at[1]:
+			p.hp=p.hp-self.at[0]
+		if self.mp>self.at[1]:
+			self.mp=self.mp-self.at[1]
+		else:
+			self.mode="stand"
 			
 	def attack2(self,p):
 		self.mode="attack2"
-		if self.rect.colliderect(p.rect) and p.hp>0 and self.mp>5:
-			p.hp=p.hp-3
-		if self.mp>5:
-			self.mp=self.mp-5
+		if self.rect.colliderect(p.rect) and p.hp>0 and self.mp>self.at[3]:
+			p.hp=p.hp-self.at[2]
+		if self.mp>self.at[3]:
+			self.mp=self.mp-self.at[3]
 		else:
 			self.mode="stand"
 			
 	def attack3(self,b):
-		if self.mp>50 and b.orient=="stop":
+		if self.mp>self.at[5] and b.orient=="stop":
 			self.mode="attack3"
 			if self.orient=="left":
 				b.orient="left"
@@ -148,14 +183,8 @@ class Player(object):
 				b.orient="right"
 				b.x=self.x+40
 			b.y=self.y+40
-			self.mp=self.mp-50
+			self.mp=self.mp-self.at[5]
 		
-		'''
-		if self.rect.colliderect(p.rect) and p.hp>0 and self.mp>5:
-			p.hp=p.hp-3
-		if self.mp>5:
-			self.mp=self.mp-5
-		'''
 
 			
 	def draw(self):
@@ -164,29 +193,29 @@ class Player(object):
 		
 		if self.mode=="stand":
 			if self.orient=="right":
-				window.blit(self.pic,(self.x-40,self.y+3),(80*self.seq,0,80,80))
+				window.blit(self.pic,(self.x-40,self.y+3),(self.stand[2]*self.seq+self.stand[0],self.stand[1],self.stand[2],self.stand[3]))
 			else:
-				window.blit(self.pic2,(self.x-40,self.y+3),(80*self.seq+480,0,80,80))
+				window.blit(self.pic2,(self.x-40,self.y+3),(self.stand[6]*self.seq+self.stand[4],self.stand[5],self.stand[6],self.stand[7]))
 		if self.mode=="go":
 			if self.orient=="right":
-				window.blit(self.pic,(self.x-40,self.y+3),(80*self.seq+240,0,80,80))
+				window.blit(self.pic,(self.x-40,self.y+3),(self.go[2]*self.seq+self.go[0],self.go[1],self.go[2],self.go[3]))
 			else:
-				window.blit(self.pic2,(self.x-40,self.y+3),(80*self.seq+160,0,80,80))
+				window.blit(self.pic2,(self.x-40,self.y+3),(self.go[6]*self.seq+self.go[4],self.go[5],self.go[6],self.go[7]))
 		if self.mode=="attack1":
 			if self.orient=="right":
-				window.blit(self.pic,(self.x-40,self.y+3),(80*self.seq,80,80,80))
+				window.blit(self.pic,(self.x-40,self.y+3),(self.at1[2]*self.seq+self.at1[0],self.at1[1],self.at1[2],self.at1[3]))
 			else:
-				window.blit(self.pic2,(self.x-40,self.y+3),(80*self.seq+480,80,80,80))		
+				window.blit(self.pic2,(self.x-40,self.y+3),(self.at1[6]*self.seq+self.at1[4],self.at1[5],self.at1[6],self.at1[7]))
 		if self.mode=="attack2":
 			if self.orient=="right":
-				window.blit(self.pic3,(self.x-40,self.y+3),(80*self.seq+480,0,75,80))
+				window.blit(self.pic3,(self.x-40,self.y+3),(self.at2[2]*self.seq+self.at2[0],self.at2[1],self.at2[2],self.at2[3]))
 			else:
-				window.blit(self.pic4,(self.x-40,self.y+3),(80*self.seq,0,75,80))	
+				window.blit(self.pic4,(self.x-40,self.y+3),(self.at2[6]*self.seq+self.at2[4],self.at2[5],self.at2[6],self.at2[7]))
 		if self.mode=="attack3":
 			if self.orient=="right":
-				window.blit(self.pic3,(self.x-40,self.y+3),(80*self.seq+240,0,75,80))
+				window.blit(self.pic3,(self.x-40,self.y+3),(self.at3[2]*self.seq+self.at3[0],self.at3[1],self.at3[2],self.at3[3]))
 			else:
-				window.blit(self.pic4,(self.x-40,self.y+3),(80*self.seq+240,0,75,80))
+				window.blit(self.pic4,(self.x-40,self.y+3),(self.at3[6]*self.seq+self.at3[4],self.at3[5],self.at3[6],self.at3[7]))
 		self.seq=(self.seq+1)%4
 		self.mode="stand"
 		if self.mp<100 and self.seq==0:
@@ -199,8 +228,6 @@ class Game(object):
 	
 	def draw(self):
 		draw.rect(window,(0,0,0),Rect(0,0,res[0],res[1]),0)
-		#draw.rect(window,bluesky,Rect(0,top,res[0],res[1]),0)
-		#draw.rect(window,greengrass,Rect(0,horizon,res[0],res[1]),0)
 		window.blit(background,(-25,top))
 		
 		if p1.y>p2.y:
@@ -233,14 +260,17 @@ class Game(object):
 			window.blit(text,(res[0]/2-60,res[1]/2))
 
 
-frozen=image.load("frozen.bmp")
-elektro=image.load("elektro.bmp")			
-name1 = ""
-name2 = ""
-x1=-1000
-x2 = -1000
-y1 = -1000
-y2 = -1000
+
+			
+			
+			
+char=["frozen","firen","elektro","henry","deep","jan","dennis","rudolf"]
+av=[]
+for c in char:
+	av.append(image.load(c+"/"+c+".bmp"))
+	
+select1=1
+select2=1			
 
 end=False
 while not end:
@@ -249,37 +279,35 @@ while not end:
 			end=True
 	
 	window.fill(black)
-
-	draw.rect(window,blue,Rect(x1-5,y1-5,130,130),0)
-	draw.rect(window,green,Rect(x2-5,y2-5,130,130),0)
 	
-	window.blit(frozen,(100,100))
-	window.blit(frozen,(500,100))
+	if select1 in [0,1,2,3]:
+		draw.rect(window,blue,Rect(25,select1*125,130,130),0)
+	if select1 in [4,5,6,7]:
+		draw.rect(window,blue,Rect(175,(select1-4)*125,130,130),0)
+	if select2 in [0,1,2,3]:
+		draw.rect(window,green,Rect(445,select2*125,130,130),0)
+	if select2 in [4,5,6,7]:
+		draw.rect(window,green,Rect(595,(select2-4)*125,130,130),0)		
+		
+	for i in range(4):
+		window.blit(av[i],(30,i*125+5))
+		window.blit(av[i],(450,i*125+5))
+		window.blit(av[i+4],(180,i*125+5))
+		window.blit(av[i+4],(600,i*125+5))
 	
-	window.blit(elektro,(100,300))
-	window.blit(elektro,(500,300))
 	
-
-	
-	if mouse.get_pressed()[0] == 1:
-		if mouse.get_pos()[0]>100 and mouse.get_pos()[0]<300 and mouse.get_pos()[1]>100 and mouse.get_pos()[1]<300:
-			name1 = "frozen"
-			x1 = 100
-			y1 = 100
-		if mouse.get_pos()[0]>500 and mouse.get_pos()[0]<700 and mouse.get_pos()[1]>100 and mouse.get_pos()[1]<200:
-			name2 = "frozen"			
-			x2 = 500
-			y2 = 100
-		if mouse.get_pos()[0]>100 and mouse.get_pos()[0]<300 and mouse.get_pos()[1]>300 and mouse.get_pos()[1]<500:
-			name1 = "elektro"
-			x1 = 100
-			y1 = 300
-		if mouse.get_pos()[0]>500 and mouse.get_pos()[0]<700 and mouse.get_pos()[1]>300 and mouse.get_pos()[1]<500:
-			name2 = "elektro"
-			x2 = 500
-			y2 = 300
+	if mouse.get_pressed()[0]:
 		if mouse.get_pos()[0]>320 and mouse.get_pos()[0]<420 and mouse.get_pos()[1]>300 and mouse.get_pos()[1]<330:
 			end = True
+		for i in range(4):
+			if mouse.get_pos()[0]>30 and mouse.get_pos()[0]<150 and mouse.get_pos()[1]>i*125+5 and mouse.get_pos()[1]<i*125+125:
+				select1=i
+			if mouse.get_pos()[0]>180 and mouse.get_pos()[0]<300 and mouse.get_pos()[1]>i*125+5 and mouse.get_pos()[1]<i*125+125:
+				select1=i+4
+			if mouse.get_pos()[0]>450 and mouse.get_pos()[0]<570 and mouse.get_pos()[1]>i*125+5 and mouse.get_pos()[1]<i*125+125:
+				select2=i
+			if mouse.get_pos()[0]>600 and mouse.get_pos()[0]<720 and mouse.get_pos()[1]>i*125+5 and mouse.get_pos()[1]<i*125+125:
+				select2=i+4
 	
 	
 	draw.rect(window,red,Rect(320,300,100,30),0)
@@ -291,22 +319,23 @@ while not end:
 	clock.tick(20)
 	display.flip()
 
-if name1 == "" and name2=="":
-	name1 = "frozen"
-	name2 = "frozen"
+	
+	
+	
+	
 
 
 	
-av1 = image.load(name1+".bmp")
-av2 = image.load(name2+".bmp")
+av1 = image.load(char[select1]+"/"+char[select1]+".bmp")
+av2 = image.load(char[select2]+"/"+char[select2]+".bmp")
 av1=transform.scale(av1,(80,80))
 av2=transform.scale(av2,(80,80))
 
 
-p2 = Player(200,100+horizon,name1)
-p1 = Player(600,100+horizon,name2)
-b1 = Ball(name2)
-b2 = Ball(name1)
+p2 = Player(200,100+horizon,char[select1])
+p1 = Player(600,100+horizon,char[select2])
+b1 = Ball(char[select2])
+b2 = Ball(char[select1])
 game = Game()
 	
 end = False 
@@ -356,4 +385,3 @@ while not end:
 
 	clock.tick(20)
 	display.flip()
-	
